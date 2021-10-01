@@ -6,11 +6,15 @@
 </head>
 
 <body onload="load();">
-	<canvas id="game"></canvas>
-	<p id="score">0</p>
-	<button onclick="start();" id="startButton">Начать игру</button>
+	<div id="playGround">
+		<canvas id="game"></canvas>
+		<p id="score">0</p>
+		<button id="startButton" onclick="start();">
+			<img src="assets/button.png"  alt=""/>
+		</button>
 
-	<script type="text/javascript" src="js/jquery-3.6.0.min.js"></script>
-	<script type="text/javascript" src="js/script.js"></script>
+		<script type="text/javascript" src="js/jquery-3.6.0.min.js"></script>
+		<script type="text/javascript" src="js/script.js"></script>
+	</div>
 </body>
 </html>
