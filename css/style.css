@@ -1,3 +1,20 @@
 body{
-	
+	font-family: Arial;
+	font-size: 65px;
+}
+
+#startButton {
+	width: 350px;
+	height: 70px;
+	position: absolute;
+	margin-top: 300px;
+	left: 350px;
+}
+
+#score {
+	position: absolute;
+	left: 10px;
+	color: white;
+	top: -60px;
+	display: none;
 }
