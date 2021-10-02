@@ -8,7 +8,11 @@
 <body onload="load();">
 	<div id="playGround">
 		<canvas id="game"></canvas>
-		<p id="score">0</p>
+		<div class="bar">
+			<p id="hp">100 HP</p>
+			<p id="score">0 <img id="scoreImg" src="assets/caterpillar.png" alt=""/></p>
+			<p id="time">00:00</p>
+		</div>
 		<button id="startButton" onclick="start();">
 			<img src="assets/button.png"  alt=""/>
 		</button>

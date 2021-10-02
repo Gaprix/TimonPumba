@@ -6,9 +6,12 @@ canvas.height = 700;
 
 let started = false;
 let currentTick = 1;
+let time = 0;
+let score = 0;
+let hp = 100;
 
 let posX = 100;
-let posY = 270;
+let posY = 420;
 
 let rightDown = false;
 let leftDown = false;
@@ -63,6 +66,8 @@ function start(){
 	win.imageSmoothingEnabled = false;
 	document.getElementById("startButton").style.display = "none";
 	document.getElementById("score").style.display = "inline";
+	document.getElementById("hp").style.display = "inline";
+	document.getElementById("time").style.display = "inline";
 
 	win.drawImage(gameBack, -levelScroll/2, 0);
 	win.drawImage(gameBack, -levelScroll/2 + gameBack.width, 0);
@@ -194,7 +199,22 @@ function testBox(){
 }
 
 function tick(){
+	if(!started){
+		return;
+	}
+
 	currentTick++;
+
+	let minutes = Math.floor(time / 60);
+	let seconds = time - minutes * 60;
+
+	if(minutes < 10)
+		minutes = "0" + minutes;
+	if(seconds < 10)
+		seconds = "0" + seconds;
+
+	document.getElementById("time").innerText = minutes + ":" + seconds;
+
 	if(rightDown === true && testBox()["right"] === false){
 		posX += timonSpeed/5;
 		timonDirection = "right";
@@ -245,5 +265,12 @@ $(document).on('keydown', function(event){
 	}
 });
 
+function timer(){
+	if(started){
+		time++;
+	}
+}
+
 setInterval(draw, 16);
 setInterval(tick, 16);
+setInterval(timer, 1000);

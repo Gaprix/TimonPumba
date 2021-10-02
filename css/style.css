@@ -10,18 +10,42 @@ body {
 }
 
 #startButton {
-	width: 350px;
-	height: 70px;
 	position: absolute;
 	margin-top: 300px;
 	border: 0;
 	background: transparent;
 }
 
-#score {
+.bar{
 	color: white;
 	position: absolute;
-	margin-right: 950px;
-	top: -60px;
+	font-size: 40px;
+}
+
+.bar #hp {
+	position: absolute;
+	right: 280px;
+	width: 200px;
+	top: -30px;
+	display: none;
+}
+
+.bar #score {
+	position: absolute;
+	right: 50px;
+	top: -30px;
+	display: none;
+}
+
+.bar #scoreImg {
+	position: absolute;
+	width: 50px;
+	height: auto;
+}
+
+.bar #time {
+	position: absolute;
+	right: -420px;
+	top: -30px;
 	display: none;
 }
