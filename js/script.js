@@ -29,16 +29,8 @@ let timonSpeed = 5;
 let blockWidth = 100;
 let blockHeight = 100;
 
-const level1 = [
-	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-	0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-	1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1, 1, 1 ,1, 1, 1, 1, 1, 1, 1, 1
-];
-let levelWidth = level1.length/7;
+const level = generateLevel();
+let levelWidth = level.length/7;
 let levelScroll = 0;
 
 let timon = new Image();
@@ -49,6 +41,31 @@ let gameBack = new Image();
 gameBack.src = "assets/bg2.png";
 let block = new Image();
 block.src = "assets/block.png";
+
+function rand(min, max){
+	return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+function generateLevel(){
+	let width = 20;
+	let height = 7;
+	let levelBlocks = [];
+
+	for(let i = 0; i < width * height; i++){
+		if(i >= width * (height - 1)){
+			levelBlocks[i] = 1;
+			continue;
+		}
+
+		if(rand(1, 5) === 1){
+			levelBlocks[i] = 1;
+		}else{
+			levelBlocks[i] = 0;
+		}
+	}
+
+	return levelBlocks;
+}
 
 function addText(x, y, message, size = 60, color = "#fff", font = "Arial"){
 	win.fillStyle = color;
@@ -78,12 +95,10 @@ function start(){
 
 function loadLevel(){
 	let index;
-	let x2;
 	for (let x = 0; x < canvas.width * (levelWidth/10); x += blockWidth) {
 		for (let y = 0; y < canvas.height; y += blockHeight) {
 			index = (y / blockHeight) * levelWidth + (x / blockWidth);
-			console.log((x / blockWidth) + levelScroll);
-			if(level1[index] === 1) {
+			if(level[index] === 1) {
 				win.drawImage(block, x - levelScroll, y - 20, blockWidth, blockHeight);
 			}
 		}
@@ -167,34 +182,45 @@ function testBox(){
 	for (let x = 0; x < canvas.width * (levelWidth/10); x += blockWidth) {
 		for (let y = 0; y < canvas.height; y += blockHeight) {
 			index = (y / blockHeight) * levelWidth + (x / blockWidth);
-			if(level1[index] === 1){
+
+			if(posX === 0){
+				result["left"] = true;
+			}
+
+			if(level[index] === 1){
 				if(x - levelScroll < 0)
 					continue;
-				x2 = Math.abs(x-levelScroll);
+				x2 = Math.abs(x - levelScroll);
+
 				/*win.fillStyle = "blue";
 				win.fillRect(x2, y, blockWidth, 2);
 				win.fillRect(x2, y, 2, blockHeight);
-				win.fillRect(x2 + blockWidth, y, 2, blockHeight);*/
+				win.fillRect(x2 + blockWidth, y, 2, blockHeight);
+				win.fillRect(x2, y + blockHeight, blockWidth, 2);*/
+
 				if(y === posY + timonHeight*timonSizeMultiplier) {
 					if((x2 >= posX && Math.abs(x2 - posX) < blockWidth + legsWidth) || x2 <= posX && Math.abs(x2 - posX) < blockWidth)
 						result["down"] = true;
 				}
 
-				if(Math.abs(x2 - (posX + legsWidth*timonSizeMultiplier)) < timonSpeed + 1 && y < posY + timonHeight*timonSizeMultiplier) {
+				if(Math.abs(x2 - (posX + legsWidth*timonSizeMultiplier)) < timonSpeed + 1 && y < posY + timonHeight*timonSizeMultiplier && y > posY) {
 					result["right"] = true;
 				}
 
-				if(Math.abs((x2 + blockWidth) - posX) < timonSpeed + 1 && y < posY + timonHeight*timonSizeMultiplier) {
+				if(Math.abs((x2 + blockWidth) - posX) < timonSpeed + 1 && y < posY + timonHeight*timonSizeMultiplier && y > posY) {
 					result["left"] = true;
 				}
 
 			}
 		}
 	}
+
 	/*win.fillStyle = "red";
 	win.fillRect(posX, posY + timonHeight*timonSizeMultiplier, legsWidth*timonSizeMultiplier, 2);
 	win.fillRect(posX, posY + timonHeight*timonSizeMultiplier, 2, -timonHeight*timonSizeMultiplier);
+	win.fillRect(posX, posY, legsWidth*timonSizeMultiplier, 2);
 	win.fillRect(posX+legsWidth*timonSizeMultiplier, posY + timonHeight*timonSizeMultiplier, 2, -timonHeight*timonSizeMultiplier);*/
+
 	return result;
 }
 
@@ -222,9 +248,13 @@ function tick(){
 	}
 
 	if(leftDown === true && testBox()["left"] === false){
-		posX -= timonSpeed/5;
 		timonDirection = "left";
-		levelScroll -= timonSpeed;
+		if(levelScroll - timonSpeed >= 0) {
+			levelScroll -= timonSpeed;
+			posX -= timonSpeed/5;
+		}else{
+			posX -= timonSpeed;
+		}
 	}
 
 	if(upDown === true && testBox()["down"] === true){
