@@ -21,19 +21,22 @@ let legsWidth = 35;
 let timonSizeMultiplier = 4;
 let timonFrame = 1;
 let timonDirection = "right";
+let timonSpeed = 5;
 
 let blockWidth = 100;
 let blockHeight = 100;
 
 const level1 = [
-	0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-	0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-	0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-	0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-	0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-	0, 0, 0, 1, 1, 1, 0, 0, 0, 0,
-	1, 1, 1, 0, 0, 0, 1, 1, 1, 1
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+	0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+	1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1, 1, 1 ,1, 1, 1, 1, 1, 1, 1, 1
 ];
+let levelWidth = level1.length/7;
+let levelScroll = 0;
 
 let timon = new Image();
 timon.src = "assets/timon.png";
@@ -61,7 +64,8 @@ function start(){
 	document.getElementById("startButton").style.display = "none";
 	document.getElementById("score").style.display = "inline";
 
-	win.drawImage(gameBack, 0, 0);
+	win.drawImage(gameBack, -levelScroll/2, 0);
+	win.drawImage(gameBack, -levelScroll/2 + gameBack.width, 0);
 	//addText(300, 50, "Тимон и Пумба");
 	loadLevel();
 	drawCharacter();
@@ -69,11 +73,13 @@ function start(){
 
 function loadLevel(){
 	let index;
-	for (let x = 0; x < canvas.width; x += blockWidth) {
+	let x2;
+	for (let x = 0; x < canvas.width * (levelWidth/10); x += blockWidth) {
 		for (let y = 0; y < canvas.height; y += blockHeight) {
-			index = (y / blockHeight) * 10 + (x / blockWidth);
+			index = (y / blockHeight) * levelWidth + (x / blockWidth);
+			console.log((x / blockWidth) + levelScroll);
 			if(level1[index] === 1) {
-				win.drawImage(block, x, y - 20, blockWidth, blockHeight);
+				win.drawImage(block, x - levelScroll, y - 20, blockWidth, blockHeight);
 			}
 		}
 	}
@@ -152,24 +158,28 @@ function testBox(){
 		"left": false,
 		"right": false
 	}
-	for (let x = 0; x < canvas.width; x += blockWidth) {
+	let x2;
+	for (let x = 0; x < canvas.width * (levelWidth/10); x += blockWidth) {
 		for (let y = 0; y < canvas.height; y += blockHeight) {
-			index = (y / blockHeight) * 10 + (x / blockWidth);
+			index = (y / blockHeight) * levelWidth + (x / blockWidth);
 			if(level1[index] === 1){
+				if(x - levelScroll < 0)
+					continue;
+				x2 = Math.abs(x-levelScroll);
 				/*win.fillStyle = "blue";
-				win.fillRect(x, y, blockWidth, 2);
-				win.fillRect(x, y, 2, blockHeight);
-				win.fillRect(x + blockWidth, y, 2, blockHeight);*/
+				win.fillRect(x2, y, blockWidth, 2);
+				win.fillRect(x2, y, 2, blockHeight);
+				win.fillRect(x2 + blockWidth, y, 2, blockHeight);*/
 				if(y === posY + timonHeight*timonSizeMultiplier) {
-					if((x >= posX && Math.abs(x - posX) < blockWidth + legsWidth) || x <= posX && Math.abs(x - posX) < blockWidth)
+					if((x2 >= posX && Math.abs(x2 - posX) < blockWidth + legsWidth) || x2 <= posX && Math.abs(x2 - posX) < blockWidth)
 						result["down"] = true;
 				}
 
-				if(x === posX + legsWidth*timonSizeMultiplier && y < posY + timonHeight*timonSizeMultiplier) {
+				if(Math.abs(x2 - (posX + legsWidth*timonSizeMultiplier)) < timonSpeed + 1 && y < posY + timonHeight*timonSizeMultiplier) {
 					result["right"] = true;
 				}
 
-				if(x + blockWidth === posX && y < posY + timonHeight*timonSizeMultiplier) {
+				if(Math.abs((x2 + blockWidth) - posX) < timonSpeed + 1 && y < posY + timonHeight*timonSizeMultiplier) {
 					result["left"] = true;
 				}
 
@@ -186,13 +196,15 @@ function testBox(){
 function tick(){
 	currentTick++;
 	if(rightDown === true && testBox()["right"] === false){
-		posX += 10;
+		posX += timonSpeed/5;
 		timonDirection = "right";
+		levelScroll += timonSpeed;
 	}
 
 	if(leftDown === true && testBox()["left"] === false){
-		posX -= 10;
+		posX -= timonSpeed/5;
 		timonDirection = "left";
+		levelScroll -= timonSpeed;
 	}
 
 	if(upDown === true && testBox()["down"] === true){
