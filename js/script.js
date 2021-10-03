@@ -5,6 +5,7 @@ canvas.width = 1000;
 canvas.height = 700;
 
 let started = false;
+let debugMode = false;
 let currentTick = 1;
 let time = 0;
 let score = 0;
@@ -192,11 +193,13 @@ function testBox(){
 					continue;
 				x2 = Math.abs(x - levelScroll);
 
-				/*win.fillStyle = "blue";
-				win.fillRect(x2, y, blockWidth, 2);
-				win.fillRect(x2, y, 2, blockHeight);
-				win.fillRect(x2 + blockWidth, y, 2, blockHeight);
-				win.fillRect(x2, y + blockHeight, blockWidth, 2);*/
+				if(debugMode) {
+					win.fillStyle = "blue";
+					win.fillRect(x2, y, blockWidth, 2);
+					win.fillRect(x2, y, 2, blockHeight);
+					win.fillRect(x2 + blockWidth, y, 2, blockHeight);
+					win.fillRect(x2, y + blockHeight, blockWidth, 2);
+				}
 
 				if(y === posY + timonHeight*timonSizeMultiplier) {
 					if((x2 >= posX && Math.abs(x2 - posX) < blockWidth + legsWidth) || x2 <= posX && Math.abs(x2 - posX) < blockWidth)
@@ -215,11 +218,13 @@ function testBox(){
 		}
 	}
 
-	/*win.fillStyle = "red";
-	win.fillRect(posX, posY + timonHeight*timonSizeMultiplier, legsWidth*timonSizeMultiplier, 2);
-	win.fillRect(posX, posY + timonHeight*timonSizeMultiplier, 2, -timonHeight*timonSizeMultiplier);
-	win.fillRect(posX, posY, legsWidth*timonSizeMultiplier, 2);
-	win.fillRect(posX+legsWidth*timonSizeMultiplier, posY + timonHeight*timonSizeMultiplier, 2, -timonHeight*timonSizeMultiplier);*/
+	if(debugMode) {
+		win.fillStyle = "red";
+		win.fillRect(posX, posY + timonHeight * timonSizeMultiplier, legsWidth * timonSizeMultiplier, 2);
+		win.fillRect(posX, posY + timonHeight * timonSizeMultiplier, 2, -timonHeight * timonSizeMultiplier);
+		win.fillRect(posX, posY, legsWidth * timonSizeMultiplier, 2);
+		win.fillRect(posX + legsWidth * timonSizeMultiplier, posY + timonHeight * timonSizeMultiplier, 2, -timonHeight * timonSizeMultiplier);
+	}
 
 	return result;
 }
