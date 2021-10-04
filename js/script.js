@@ -48,7 +48,7 @@ function rand(min, max){
 }
 
 function generateLevel(){
-	let width = 20;
+	let width = 30;
 	let height = 7;
 	let levelBlocks = [];
 
@@ -247,16 +247,25 @@ function tick(){
 	document.getElementById("time").innerText = minutes + ":" + seconds;
 
 	if(rightDown === true && testBox()["right"] === false){
-		posX += timonSpeed/5;
 		timonDirection = "right";
-		levelScroll += timonSpeed;
+		if(posX > canvas.width/1.5){
+			levelScroll += timonSpeed;
+		}else{
+			posX += timonSpeed;
+		}
 	}
 
 	if(leftDown === true && testBox()["left"] === false){
 		timonDirection = "left";
 		if(levelScroll - timonSpeed >= 0) {
-			levelScroll -= timonSpeed;
-			posX -= timonSpeed/5;
+		
+			if(posX < (canvas.width / 3) - timonWidth*timonSizeMultiplier){
+				console.log(canvas.width / 3);
+				levelScroll -= timonSpeed;
+			}else{
+				posX -= timonSpeed;
+			}
+			
 		}else{
 			posX -= timonSpeed;
 		}
@@ -303,9 +312,20 @@ $(document).on('keydown', function(event){
 function timer(){
 	if(started){
 		time++;
+		hp--;
+		document.getElementById("hp").innerText = hp + " HP";
+		if(hp <= 0){
+			started = false;
+			addText(canvas.width/4, canvas.height/4, "Игра окончена!", 70, "#000");
+			win.fillStyle = "white";
+			win.fillRect(canvas.width/4, canvas.height/3, canvas.width/2, canvas.height/2);
+			for(let i = 0; i <= 200; i += 50){
+				addText(canvas.width/4 + 20, canvas.height/3 + 50 + i, "Игрок " + i, 40, "#000");
+			}
+		}
 	}
 }
 
 setInterval(draw, 16);
 setInterval(tick, 16);
-setInterval(timer, 1000);
+setInterval(timer, 10);
