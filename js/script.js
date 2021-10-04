@@ -260,7 +260,6 @@ function tick(){
 		if(levelScroll - timonSpeed >= 0) {
 		
 			if(posX < (canvas.width / 3) - timonWidth*timonSizeMultiplier){
-				console.log(canvas.width / 3);
 				levelScroll -= timonSpeed;
 			}else{
 				posX -= timonSpeed;
@@ -319,6 +318,8 @@ function timer(){
 			addText(canvas.width/4, canvas.height/4, "Игра окончена!", 70, "#000");
 			win.fillStyle = "white";
 			win.fillRect(canvas.width/4, canvas.height/3, canvas.width/2, canvas.height/2);
+			win.strokeStyle = "black";
+			win.strokeRect(canvas.width/4, canvas.height/3, canvas.width/2, canvas.height/2);
 			for(let i = 0; i <= 200; i += 50){
 				addText(canvas.width/4 + 20, canvas.height/3 + 50 + i, "Игрок " + i, 40, "#000");
 			}
