@@ -328,4 +328,4 @@ function timer(){
 
 setInterval(draw, 16);
 setInterval(tick, 16);
-setInterval(timer, 10);
+setInterval(timer, 1000);
