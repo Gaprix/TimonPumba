@@ -202,8 +202,9 @@ function testBox(){
 				}
 
 				if(y === posY + timonHeight*timonSizeMultiplier) {
-					if((x2 >= posX && Math.abs(x2 - posX) < blockWidth + legsWidth) || x2 <= posX && Math.abs(x2 - posX) < blockWidth)
+					if((x2 >= posX && Math.abs(x2 - posX) < blockWidth + legsWidth) || x2 <= posX && Math.abs(x2 - posX) < blockWidth) {
 						result["down"] = true;
+					}
 				}
 
 				if(Math.abs(x2 - (posX + legsWidth*timonSizeMultiplier)) < timonSpeed + 1 && y < posY + timonHeight*timonSizeMultiplier && y > posY) {
