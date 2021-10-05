@@ -30,9 +30,12 @@ let timonSpeed = 5;
 let blockWidth = 100;
 let blockHeight = 100;
 
-const level = generateLevel();
-let levelWidth = level.length/7;
+
+let levelWidth = 30;
+let levelHeight = 7;
 let levelScroll = 0;
+
+const level = generateLevel();
 
 let timon = new Image();
 timon.src = "assets/timon.png";
@@ -42,30 +45,53 @@ let gameBack = new Image();
 gameBack.src = "assets/bg2.png";
 let block = new Image();
 block.src = "assets/block.png";
+let caterpillar = new Image();
+caterpillar.src = "assets/caterpillar.png";
 
 function rand(min, max){
 	return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
 function generateLevel(){
-	let width = 30;
-	let height = 7;
 	let levelBlocks = [];
+	let structures = [
+		{
+			blocks: [
+				[100, 600],
+				[200, 500]
+			],
+			length: 
+		}
+	];
 
-	for(let i = 0; i < width * height; i++){
-		if(i >= width * (height - 1)){
+	for(let i = 0; i < levelWidth * levelHeight; i++){
+		if(i >= levelWidth * (levelHeight - 1)){
 			levelBlocks[i] = 1;
 			continue;
 		}
-
-		if(rand(1, 5) === 1){
-			levelBlocks[i] = 1;
-		}else{
-			levelBlocks[i] = 0;
+	}
+	
+	for(let i = 0; i < 3; i++){
+		let structure = structures[rand(0, structures.length - 1)];
+		for(let n = 0; n < structure.length; n++){
+			levelBlocks[getIndex(i*300 + structure[n][0], structure[n][1])] = 1;
 		}
 	}
-
+	
 	return levelBlocks;
+}
+
+function getIndex(x, y){
+	let xHeight = Math.floor(x / 100);
+	let xWidth = 0;
+	
+	if(x % 100 != 0){
+		xWidth += (x / 100) % levelHeight;
+	}
+	
+	index = xHeight + xWidth + (y / 100) * levelWidth;
+	
+	return index;
 }
 
 function addText(x, y, message, size = 60, color = "#fff", font = "Arial"){
@@ -83,9 +109,6 @@ function start(){
 	started = true;
 	win.imageSmoothingEnabled = false;
 	document.getElementById("startButton").style.display = "none";
-	document.getElementById("score").style.display = "inline";
-	document.getElementById("hp").style.display = "inline";
-	document.getElementById("time").style.display = "inline";
 
 	win.drawImage(gameBack, -levelScroll/2, 0);
 	win.drawImage(gameBack, -levelScroll/2 + gameBack.width, 0);
@@ -166,9 +189,26 @@ function draw(){
 	}
 	win.clearRect(0, 0, canvas.width, canvas.height);
 	start();
+	drawBar();
 	if(testBox()["down"] === false){
 		posY += 10;
 	}
+}
+
+function drawBar(){
+	addText(20, 50, hp + " HP", 40);
+	addText(430, 50, score, 40);
+	win.drawImage(caterpillar, 470, 5, 50, 50);
+	
+	let minutes = Math.floor(time / 60);
+	let seconds = time - minutes * 60;
+
+	if(minutes < 10)
+		minutes = "0" + minutes;
+	if(seconds < 10)
+		seconds = "0" + seconds;
+	
+	addText(canvas.width - 180, 50, minutes + ":" + seconds, 40);
 }
 
 function testBox(){
@@ -202,9 +242,8 @@ function testBox(){
 				}
 
 				if(y === posY + timonHeight*timonSizeMultiplier) {
-					if((x2 >= posX && Math.abs(x2 - posX) < blockWidth + legsWidth) || x2 <= posX && Math.abs(x2 - posX) < blockWidth) {
+					if((x2 >= posX && Math.abs(x2 - posX) < blockWidth + legsWidth) || x2 <= posX && Math.abs(x2 - posX) < blockWidth)
 						result["down"] = true;
-					}
 				}
 
 				if(Math.abs(x2 - (posX + legsWidth*timonSizeMultiplier)) < timonSpeed + 1 && y < posY + timonHeight*timonSizeMultiplier && y > posY) {
@@ -236,16 +275,6 @@ function tick(){
 	}
 
 	currentTick++;
-
-	let minutes = Math.floor(time / 60);
-	let seconds = time - minutes * 60;
-
-	if(minutes < 10)
-		minutes = "0" + minutes;
-	if(seconds < 10)
-		seconds = "0" + seconds;
-
-	document.getElementById("time").innerText = minutes + ":" + seconds;
 
 	if(rightDown === true && testBox()["right"] === false){
 		timonDirection = "right";
@@ -312,19 +341,16 @@ $(document).on('keydown', function(event){
 function timer(){
 	if(started){
 		time++;
-		hp--;
-		document.getElementById("hp").innerText = hp + " HP";
 		if(hp <= 0){
 			started = false;
 			addText(canvas.width/4, canvas.height/4, "Игра окончена!", 70, "#000");
 			win.fillStyle = "white";
 			win.fillRect(canvas.width/4, canvas.height/3, canvas.width/2, canvas.height/2);
-			win.strokeStyle = "black";
-			win.strokeRect(canvas.width/4, canvas.height/3, canvas.width/2, canvas.height/2);
 			for(let i = 0; i <= 200; i += 50){
 				addText(canvas.width/4 + 20, canvas.height/3 + 50 + i, "Игрок " + i, 40, "#000");
 			}
 		}
+		hp--;
 	}
 }
 

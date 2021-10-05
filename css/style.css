@@ -15,37 +15,3 @@ body {
 	border: 0;
 	background: transparent;
 }
-
-.bar{
-	color: white;
-	position: absolute;
-	font-size: 40px;
-}
-
-.bar #hp {
-	position: absolute;
-	right: 280px;
-	width: 200px;
-	top: -30px;
-	display: none;
-}
-
-.bar #score {
-	position: absolute;
-	right: 50px;
-	top: -30px;
-	display: none;
-}
-
-.bar #scoreImg {
-	position: absolute;
-	width: 50px;
-	height: auto;
-}
-
-.bar #time {
-	position: absolute;
-	right: -420px;
-	top: -30px;
-	display: none;
-}
