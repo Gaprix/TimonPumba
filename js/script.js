@@ -43,7 +43,7 @@ let levelWidth = 500;
 let levelHeight = 7;
 let levelScroll = 0;
 
-const level = generateLevel();
+let level = generateLevel();
 
 let timon = new Image();
 timon.src = "assets/timon.png";
@@ -128,7 +128,17 @@ function load(){
 }
 
 function start(){
-	started = true;
+	if(!started){
+		time = 0;
+		score = 0;
+		hp = 100;
+		posX = 0;
+		posY = 420;
+		levelScroll = 0;
+		level = generateLevel();
+		timonDirection = "right";
+		started = true;
+	}
 	win.imageSmoothingEnabled = false;
 	document.getElementById("startButton").style.display = "none";
 
@@ -285,7 +295,10 @@ function testBox(){
 				}
 				
 				if((x2 === posX || x2 + hyenaWidth * hyenaSizeMultiplier === posX) && y === 60 + posY){
-					hp = 0;
+					hp -= 30;
+					if(hp < 0){
+						hp = 0;
+					}
 				}
 			}
 			
@@ -304,6 +317,10 @@ function testBox(){
 				
 				if((x2 === posX || x2 + caterpillarRealWidth === posX) && y === 60 + posY){
 					score++;
+					hp += 5;
+					if(hp > 100){
+						hp = 100;
+					}
 					delete level[getIndex(x, y)];
 				}
 			}
@@ -400,6 +417,17 @@ $(document).on('keydown', function(event){
 		case "ArrowDown":
 			downDown = true;
 			break;
+		case "Escape":
+			if(currentTick === 0){
+				break;
+			}
+			if(started){
+				addText(400, canvas.height/2, "ПАУЗА", 70, "#000");
+				started = false;
+			}else if(currentTick !== 1){
+				started = true;
+			}
+			break;
 	}
 }).on('keyup', function(event){
 	switch(event.key){
@@ -422,8 +450,10 @@ function timer(){
 	if(started){
 		time++;
 		if(hp <= 0){
+			currentTick = 0;
 			started = false;
 			addText(canvas.width/4, canvas.height/4, "Игра окончена!", 70, "#000");
+			document.getElementById("startButton").style = "hidden: no; margin-top: 600px;";
 			win.fillStyle = "white";
 			win.fillRect(canvas.width/4, canvas.height/3, canvas.width/2, canvas.height/2);
 			win.strokeStyle = "black";
