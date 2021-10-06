@@ -11,7 +11,7 @@ let time = 0;
 let score = 0;
 let hp = 100;
 
-let posX = 100;
+let posX = 0;
 let posY = 420;
 
 let rightDown = false;
@@ -30,8 +30,16 @@ let timonSpeed = 5;
 let blockWidth = 100;
 let blockHeight = 100;
 
+let hyenaWidth = 50;
+let hyenaHeight = 50;
+let hyenaSizeMultiplier = 3;
 
-let levelWidth = 30;
+let caterpillarWidth = 50;
+let caterpillarRealWidth = 30;
+let caterpillarRealHeight = 30;
+let caterpillarHeight = 50;
+
+let levelWidth = 500;
 let levelHeight = 7;
 let levelScroll = 0;
 
@@ -47,6 +55,8 @@ let block = new Image();
 block.src = "assets/block.png";
 let caterpillar = new Image();
 caterpillar.src = "assets/caterpillar.png";
+let hyena = new Image();
+hyena.src = "assets/hyena.png";
 
 function rand(min, max){
 	return Math.floor(Math.random() * (max - min + 1)) + min;
@@ -55,13 +65,23 @@ function rand(min, max){
 function generateLevel(){
 	let levelBlocks = [];
 	let structures = [
-		{
-			blocks: [
-				[100, 600],
-				[200, 500]
-			],
-			length: 
-		}
+		[
+			[0, 5, 1],
+			[1, 4, 1],
+			[2, 3, 1],
+			[2, 5, 2],
+			[3, 3, 1],
+			[6, 3, 1],
+			[7, 3, 1],
+			[7, 5, 3],
+			[8, 3, 1]
+		],
+		[
+			[0, 4, 1],
+			[1, 4, 1],
+			[3, 3, 1],
+			[4, 3, 1]
+		]
 	];
 
 	for(let i = 0; i < levelWidth * levelHeight; i++){
@@ -71,11 +91,13 @@ function generateLevel(){
 		}
 	}
 	
-	for(let i = 0; i < 3; i++){
+	let step = 100;
+	for(let i = 1; i < 10; i++){
 		let structure = structures[rand(0, structures.length - 1)];
 		for(let n = 0; n < structure.length; n++){
-			levelBlocks[getIndex(i*300 + structure[n][0], structure[n][1])] = 1;
+			levelBlocks[getIndex(i*100 + step + structure[n][0]*100, structure[n][1]*100)] = structure[n][2];
 		}
+		step += structure[structure.length - 1][0]*100 + 200;
 	}
 	
 	return levelBlocks;
@@ -112,9 +134,9 @@ function start(){
 
 	win.drawImage(gameBack, -levelScroll/2, 0);
 	win.drawImage(gameBack, -levelScroll/2 + gameBack.width, 0);
-	//addText(300, 50, "Тимон и Пумба");
 	loadLevel();
 	drawCharacter();
+	drawTiles();
 }
 
 function loadLevel(){
@@ -122,8 +144,29 @@ function loadLevel(){
 	for (let x = 0; x < canvas.width * (levelWidth/10); x += blockWidth) {
 		for (let y = 0; y < canvas.height; y += blockHeight) {
 			index = (y / blockHeight) * levelWidth + (x / blockWidth);
-			if(level[index] === 1) {
-				win.drawImage(block, x - levelScroll, y - 20, blockWidth, blockHeight);
+			switch(level[index]){
+				case 1:
+					win.drawImage(block, x - levelScroll, y - 20, blockWidth, blockHeight);
+					break;
+			}
+		}
+	}
+}
+
+function drawTiles(){
+	let index;
+	for (let x = 0; x < canvas.width * (levelWidth/10); x += blockWidth) {
+		for (let y = 0; y < canvas.height; y += blockHeight) {
+			index = (y / blockHeight) * levelWidth + (x / blockWidth);
+			switch(level[index]){
+				case 2:
+					let offsetX = 50;
+					let offsetY = 60;
+					win.drawImage(hyena, offsetX, offsetY, hyenaWidth, hyenaHeight, x - levelScroll, y - 20, hyenaWidth*hyenaSizeMultiplier, hyenaHeight*hyenaSizeMultiplier);
+					break;
+				case 3:
+					win.drawImage(caterpillar, x - levelScroll + 20, y + 60, caterpillarWidth, caterpillarHeight);
+					break;
 			}
 		}
 	}
@@ -220,12 +263,49 @@ function testBox(){
 		"right": false
 	}
 	let x2;
-	for (let x = 0; x < canvas.width * (levelWidth/10); x += blockWidth) {
+	for (let x = 0; x < canvas.width + levelScroll; x += blockWidth) {
 		for (let y = 0; y < canvas.height; y += blockHeight) {
 			index = (y / blockHeight) * levelWidth + (x / blockWidth);
 
 			if(posX === 0){
 				result["left"] = true;
+			}
+			
+			if(level[index] === 2){
+				if(x - levelScroll < 0)
+					continue;
+				x2 = Math.abs(x - levelScroll);
+				
+				if(debugMode) {
+					win.fillStyle = "yellow";
+					win.fillRect(x2, y - 20, hyenaWidth * hyenaSizeMultiplier, 2);
+					win.fillRect(x2, y - 20, 2, hyenaHeight * hyenaSizeMultiplier);
+					win.fillRect(x2 + hyenaWidth * hyenaSizeMultiplier, y - 20, 2, hyenaHeight * hyenaSizeMultiplier);
+					win.fillRect(x2, y - 20 + hyenaHeight * hyenaSizeMultiplier, hyenaWidth * hyenaSizeMultiplier, 2);
+				}
+				
+				if((x2 === posX || x2 + hyenaWidth * hyenaSizeMultiplier === posX) && y === 60 + posY){
+					hp = 0;
+				}
+			}
+			
+			if(level[index] === 3){
+				if(x - levelScroll < 0)
+					continue;
+				x2 = Math.abs(x - levelScroll);
+				
+				if(debugMode) {
+					win.fillStyle = "yellow";
+					win.fillRect(x2, y + 20, caterpillarRealWidth * hyenaSizeMultiplier, 2);
+					win.fillRect(x2, y + 20, 2, caterpillarRealHeight * hyenaSizeMultiplier);
+					win.fillRect(x2 + caterpillarRealWidth * hyenaSizeMultiplier, y + 20, 2, caterpillarRealHeight);
+					win.fillRect(x2, y + 20 + caterpillarRealHeight * hyenaSizeMultiplier, caterpillarRealWidth, 2);
+				}
+				
+				if((x2 === posX || x2 + caterpillarRealWidth === posX) && y === 60 + posY){
+					score++;
+					delete level[getIndex(x, y)];
+				}
 			}
 
 			if(level[index] === 1){
@@ -346,6 +426,8 @@ function timer(){
 			addText(canvas.width/4, canvas.height/4, "Игра окончена!", 70, "#000");
 			win.fillStyle = "white";
 			win.fillRect(canvas.width/4, canvas.height/3, canvas.width/2, canvas.height/2);
+			win.strokeStyle = "black";
+			win.strokeRect(canvas.width/4, canvas.height/3, canvas.width/2, canvas.height/2);
 			for(let i = 0; i <= 200; i += 50){
 				addText(canvas.width/4 + 20, canvas.height/3 + 50 + i, "Игрок " + i, 40, "#000");
 			}
