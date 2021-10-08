@@ -171,8 +171,8 @@ function drawTiles(){
 			switch(level[index]){
 				case 2:
 					let offsetX = 50;
-					let offsetY = 60;
-					win.drawImage(hyena, offsetX, offsetY, hyenaWidth, hyenaHeight, x - levelScroll, y - 20, hyenaWidth*hyenaSizeMultiplier, hyenaHeight*hyenaSizeMultiplier);
+					let offsetY = 55;
+					win.drawImage(hyena, offsetX, offsetY, hyenaWidth, hyenaHeight, x - levelScroll, y - 35, hyenaWidth*hyenaSizeMultiplier, hyenaHeight*hyenaSizeMultiplier);
 					break;
 				case 3:
 					win.drawImage(caterpillar, x - levelScroll + 20, y + 60, caterpillarWidth, caterpillarHeight);
@@ -264,7 +264,7 @@ function drawBar(){
 	addText(canvas.width - 180, 50, minutes + ":" + seconds, 40);
 }
 
-function testBox(){
+function testBox(doTick = false){
 	let index;
 	let result = {
 		"down": false,
@@ -285,6 +285,11 @@ function testBox(){
 				if(x - levelScroll < 0)
 					continue;
 				x2 = Math.abs(x - levelScroll);
+				
+				if(doTick === true){
+					//todo
+					result["needMove"][index] = true;
+				}
 				
 				if(debugMode) {
 					win.fillStyle = "yellow";
@@ -449,6 +454,7 @@ $(document).on('keydown', function(event){
 function timer(){
 	if(started){
 		time++;
+		testBox(true);
 		if(hp <= 0){
 			currentTick = 0;
 			started = false;
