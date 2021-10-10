@@ -10,6 +10,7 @@ let currentTick = 1;
 let time = 0;
 let score = 0;
 let hp = 100;
+let points = 0;
 
 let posX = 0;
 let posY = 420;
@@ -454,12 +455,43 @@ function postScore(){
 	let xhr = new XMLHttpRequest();
 
 	let name = document.querySelector('input').value;
-	let points = 1000 - time + score * 10;
+	if(name === "") {
+		name = "Аноним";
+	}
+	points = 1000 - time + score * 10;
 	let body = 'name=' + encodeURIComponent(name) + '&score=' + encodeURIComponent(points);
 
 	xhr.open("POST", '/api/savescore.php', true);
 	xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
 	xhr.send(body);
+}
+
+function getScore(){
+	let xhr = new XMLHttpRequest();
+	xhr.onreadystatechange = function() {
+		if(xhr.readyState === 4) {
+			showBoard(xhr.responseText);
+		}
+	}
+	xhr.open("GET", "/api/getscore.php", true);
+	xhr.send(null);
+}
+
+function showBoard(text){
+	document.getElementById("startButton").style = "hidden: no; margin-top: 600px;";
+	win.fillStyle = "white";
+	win.fillRect(canvas.width/4, canvas.height/3, canvas.width/2, canvas.height/2);
+	win.strokeStyle = "black";
+	win.strokeRect(canvas.width/4, canvas.height/3, canvas.width/2, canvas.height/2);
+
+	let array = jQuery.parseJSON(text);
+	for(let i = 0; i < array.length; i++){
+		if(i === 9 && points < array[i][2]){
+			addText(canvas.width / 4 + 15, canvas.height / 3 + 25 + i * 30, i + 1 + ". " + document.querySelector('input').value + " - " + points, 25, "#000");
+		}else {
+			addText(canvas.width / 4 + 15, canvas.height / 3 + 25 + i * 30, i + 1 + ". " + array[i][1] + " - " + array[i][2], 25, "#000");
+		}
+	}
 }
 
 function timer(){
@@ -470,17 +502,8 @@ function timer(){
 			currentTick = 0;
 			started = false;
 			postScore();
-
 			addText(canvas.width/4, canvas.height/4, "Игра окончена!", 70, "#000");
-
-			document.getElementById("startButton").style = "hidden: no; margin-top: 600px;";
-			win.fillStyle = "white";
-			win.fillRect(canvas.width/4, canvas.height/3, canvas.width/2, canvas.height/2);
-			win.strokeStyle = "black";
-			win.strokeRect(canvas.width/4, canvas.height/3, canvas.width/2, canvas.height/2);
-			for(let i = 0; i <= 200; i += 50){
-				addText(canvas.width/4 + 20, canvas.height/3 + 50 + i, "Игрок " + i, 40, "#000");
-			}
+			getScore();
 		}
 		hp--;
 	}

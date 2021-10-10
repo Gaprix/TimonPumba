@@ -12,8 +12,9 @@ body {
 #playerName {
 	position: absolute;
 	margin-top: 250px;
-	width: 300px;
+	width: 350px;
 	height: 40px;
+	border-width: 0;
 	font-size: 35px;
 }
 
