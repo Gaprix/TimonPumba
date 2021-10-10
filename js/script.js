@@ -87,7 +87,6 @@ function generateLevel(){
 	for(let i = 0; i < levelWidth * levelHeight; i++){
 		if(i >= levelWidth * (levelHeight - 1)){
 			levelBlocks[i] = 1;
-			continue;
 		}
 	}
 	
@@ -107,13 +106,11 @@ function getIndex(x, y){
 	let xHeight = Math.floor(x / 100);
 	let xWidth = 0;
 	
-	if(x % 100 != 0){
+	if(x % 100 !== 0){
 		xWidth += (x / 100) % levelHeight;
 	}
-	
-	index = xHeight + xWidth + (y / 100) * levelWidth;
-	
-	return index;
+
+	return xHeight + xWidth + (y / 100) * levelWidth;
 }
 
 function addText(x, y, message, size = 60, color = "#fff", font = "Arial"){
@@ -141,6 +138,7 @@ function start(){
 	}
 	win.imageSmoothingEnabled = false;
 	document.getElementById("startButton").style.display = "none";
+	document.getElementById("playerName").style.display = "none";
 
 	win.drawImage(gameBack, -levelScroll/2, 0);
 	win.drawImage(gameBack, -levelScroll/2 + gameBack.width, 0);
@@ -270,7 +268,8 @@ function testBox(doTick = false){
 		"down": false,
 		"up": false,
 		"left": false,
-		"right": false
+		"right": false,
+		"needMove": {}
 	}
 	let x2;
 	for (let x = 0; x < canvas.width + levelScroll; x += blockWidth) {
@@ -451,6 +450,18 @@ $(document).on('keydown', function(event){
 	}
 });
 
+function postScore(){
+	let xhr = new XMLHttpRequest();
+
+	let name = document.querySelector('input').value;
+	let points = 1000 - time + score * 10;
+	let body = 'name=' + encodeURIComponent(name) + '&score=' + encodeURIComponent(points);
+
+	xhr.open("POST", '/api/savescore.php', true);
+	xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+	xhr.send(body);
+}
+
 function timer(){
 	if(started){
 		time++;
@@ -458,7 +469,10 @@ function timer(){
 		if(hp <= 0){
 			currentTick = 0;
 			started = false;
+			postScore();
+
 			addText(canvas.width/4, canvas.height/4, "Игра окончена!", 70, "#000");
+
 			document.getElementById("startButton").style = "hidden: no; margin-top: 600px;";
 			win.fillStyle = "white";
 			win.fillRect(canvas.width/4, canvas.height/3, canvas.width/2, canvas.height/2);
