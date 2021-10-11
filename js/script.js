@@ -698,16 +698,16 @@ function timer() {
             getScore();
         }
         hp--;
-    }else{
-        if(currentTick === 1){
+    } else {
+        if (currentTick === 1) {
             win.clearRect(0, 0, canvas.width, canvas.height);
             load();
             let offsetX = 6;
             let offsetY = 5 - 98 + guideFrame * 98;
-            win.fillRect(canvas.width/3 - 10, 590, guide.width + 10, 98);
-            win.drawImage(guide, offsetX, offsetY, guide.width, 98, canvas.width/3, 600, guide.width, 98);
+            win.fillRect(canvas.width / 3 - 10, 590, guide.width + 10, 98);
+            win.drawImage(guide, offsetX, offsetY, guide.width, 98, canvas.width / 3, 600, guide.width, 98);
             guideFrame++;
-            if(guideFrame > 3){
+            if (guideFrame > 3) {
                 guideFrame = 1;
             }
         }
