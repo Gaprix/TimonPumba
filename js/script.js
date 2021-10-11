@@ -11,6 +11,7 @@ let time = 0;
 let score = 0;
 let hp = 100;
 let points = 0;
+let guideFrame = 1;
 
 let posX = 0;
 let posY = 420;
@@ -63,6 +64,8 @@ let caterpillar = new Image();
 caterpillar.src = "assets/caterpillar.png";
 let hyena = new Image();
 hyena.src = "assets/hyena.png";
+let guide = new Image();
+guide.src = "assets/guide.png";
 let audio = new Audio("assets/music.mp3");
 
 function rand(min, max) {
@@ -695,6 +698,19 @@ function timer() {
             getScore();
         }
         hp--;
+    }else{
+        if(currentTick === 1){
+            win.clearRect(0, 0, canvas.width, canvas.height);
+            load();
+            let offsetX = 6;
+            let offsetY = 5 - 98 + guideFrame * 98;
+            win.fillRect(canvas.width/3 - 10, 590, guide.width + 10, 98);
+            win.drawImage(guide, offsetX, offsetY, guide.width, 98, canvas.width/3, 600, guide.width, 98);
+            guideFrame++;
+            if(guideFrame > 3){
+                guideFrame = 1;
+            }
+        }
     }
 }
 
