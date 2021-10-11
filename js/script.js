@@ -544,8 +544,10 @@ function tickTiles() {
         switch (type) {
             case 2:
                 if (x % 100 === 0 && y % 100 === 0) {
-                    if (level[getIndex(x + blockWidth, y)] === 1) {
+                    if (level[getIndex(x + blockWidth * 2, y)] === 1) {
                         tiles[i][3] = "left";
+                        tiles[i][4]--;
+                        tiles[i][0]--;
                     } else if (level[getIndex(x - blockWidth, y)] === 1) {
                         tiles[i][3] = "right";
                     }
