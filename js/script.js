@@ -34,13 +34,12 @@ let interactedWith = 0;
 let blockWidth = 100;
 let blockHeight = 100;
 
-let hyenaWidth = 50;
+let hyenaWidth = 72;
 let hyenaHeight = 50;
 let hyenaSizeMultiplier = 3;
+let hyenaFrame = 1;
 
 let caterpillarWidth = 50;
-let caterpillarRealWidth = 30;
-let caterpillarRealHeight = 30;
 let caterpillarHeight = 50;
 
 let levelWidth = 500;
@@ -144,8 +143,10 @@ function generateLevel(){
 			[4, 6, 4]
 		]
 	];
-	
+
 	let step = 100;
+	let x;
+	let y;
 	for(let i = 1; i < structuresNumber; i++){
 		let structure = structures[rand(0, structures.length - 1)];
 		for(let n = 0; n < structure.length; n++){
@@ -181,7 +182,7 @@ function generateLevel(){
 function getIndex(x, y){
 	let xHeight = Math.floor(x / 100);
 	let xWidth = 0;
-	
+
 	if(x % 100 !== 0){
 		xWidth += (x / 100) % levelHeight;
 	}
@@ -242,20 +243,26 @@ function loadLevel(){
 }
 
 function drawTiles(){
-	tiles.forEach(function(tile, i, array){
+	let x;
+	let y;
+	let type;
+	tiles.forEach(function(tile, i){
 		x = tile[0];
 		y = tile[1];
 		type = tile[2];
 		switch(type){
 			case 2:
-				let offsetX = 50;
-				let offsetY = 55;
+				let offsetX = 107 - 72 + hyenaFrame * 72;
+				let offsetY = 663;
 				if(debugMode === true){
 					addText(x - levelScroll, y - 50, i + ": "+ x + ", " + y, 40, "blue");
 				}
 				if(tile[3] === "left") {
 					//reverse
-					win.drawImage(hyena, offsetX, offsetY, hyenaWidth, hyenaHeight, x - levelScroll, y - 35, hyenaWidth*hyenaSizeMultiplier, hyenaHeight*hyenaSizeMultiplier);
+					win.translate(x - levelScroll + hyenaWidth * hyenaSizeMultiplier, y + 20 + hyenaHeight * hyenaSizeMultiplier);
+					win.scale(-1, 1);
+					win.drawImage(hyena, offsetX, offsetY, hyenaWidth, hyenaHeight, 0, -hyenaHeight*hyenaSizeMultiplier*1.5 + 20, hyenaWidth*hyenaSizeMultiplier, hyenaHeight*hyenaSizeMultiplier);
+					win.setTransform(1,0,0,1,0,0);
 				}else{
 					win.drawImage(hyena, offsetX, offsetY, hyenaWidth, hyenaHeight, x - levelScroll, y - 35, hyenaWidth*hyenaSizeMultiplier, hyenaHeight*hyenaSizeMultiplier);
 				}
@@ -265,11 +272,18 @@ function drawTiles(){
 				break;
 		}
 	});
+
+	if(currentTick % 9 === 0) {
+		hyenaFrame++;
+		if (hyenaFrame > 12) {
+			hyenaFrame = 1;
+		}
+	}
 }
 
 function drawCharacter(){
 	if(debugMode){
-		addText(posX, posY - timonHeight - 10, (levelScroll + timonSpeed + canvas.width)/100, 40, "blue");
+		addText(posX, posY - timonHeight, (levelScroll + timonSpeed + canvas.width)/100, 40, "blue");
 	}
 
 	if(timonHidden) {
@@ -345,7 +359,7 @@ function drawBar(){
 	addText(20, 50, hp + " HP", 40);
 	addText(430, 50, score, 40);
 	win.drawImage(caterpillar, 470, 5, 50, 50);
-	
+
 	let minutes = Math.floor(time / 60);
 	let seconds = time - minutes * 60;
 
@@ -353,7 +367,7 @@ function drawBar(){
 		minutes = "0" + minutes;
 	if(seconds < 10)
 		seconds = "0" + seconds;
-	
+
 	addText(canvas.width - 180, 50, minutes + ":" + seconds, 40);
 }
 
@@ -373,7 +387,7 @@ function testBox(){
 			if(posX === 0){
 				result["left"] = true;
 			}
-			
+
 			if(level[index] === 1){
 				if(x - levelScroll < 0)
 					continue;
@@ -421,7 +435,7 @@ function tick(){
 	}
 
 	currentTick++;
-	
+
 	tickTiles();
 
 	if(posY > 700){
@@ -462,13 +476,13 @@ function tick(){
 	if(leftDown === true && testBox()["left"] === false && !timonHidden){
 		timonDirection = "left";
 		if(levelScroll - timonSpeed >= 0) {
-		
+
 			if(posX < (canvas.width / 3) - timonWidth*timonSizeMultiplier){
 				levelScroll -= timonSpeed;
 			}else{
 				posX -= timonSpeed;
 			}
-			
+
 		}else{
 			posX -= timonSpeed;
 		}
@@ -476,10 +490,11 @@ function tick(){
 
 	if(upDown === true && testBox()["down"] === true){
 		upDown = false;
-		if(timonHidden)
+		if(timonHidden) {
 			timonHidden = false;
-		else
-			posY -= blockHeight*2;
+		}else{
+				posY -= blockHeight * 2;
+		}
 	}
 
 	if(downDown === true){
@@ -489,7 +504,10 @@ function tick(){
 }
 
 function tickTiles(){
-	tiles.forEach(function(tile, i, array){
+	let x;
+	let y;
+	let type;
+	tiles.forEach(function(tile, i){
 		x = tile[0];
 		y = tile[1];
 		type = tile[2];
@@ -537,7 +555,7 @@ function tickTiles(){
 						tiles[i][3] = "left";
 					}
 				}
-				
+
 				if(level[getIndex(x + x % 100, y + 100)] === 4){
 					if(tiles[i][3] === "left"){
 						tiles[i][3] = "right";
