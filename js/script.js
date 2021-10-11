@@ -27,6 +27,7 @@ let timonSizeMultiplier = 4;
 let timonFrame = 1;
 let timonDirection = "right";
 let timonSpeed = 5;
+let timonHidden = false;
 
 let blockWidth = 100;
 let blockHeight = 100;
@@ -60,6 +61,7 @@ let caterpillar = new Image();
 caterpillar.src = "assets/caterpillar.png";
 let hyena = new Image();
 hyena.src = "assets/hyena.png";
+let audio = new Audio("assets/music.mp3");
 
 function rand(min, max){
 	return Math.floor(Math.random() * (max - min + 1)) + min;
@@ -150,13 +152,16 @@ function start(){
 		level = generateLevel();
 		timonDirection = "right";
 		started = true;
+		audio.play();
+		audio.loop = true;
 	}
 	win.imageSmoothingEnabled = false;
 	document.getElementById("startButton").style.display = "none";
 	document.getElementById("playerName").style.display = "none";
 
-	win.drawImage(gameBack, -levelScroll/2, 0);
-	win.drawImage(gameBack, -levelScroll/2 + gameBack.width, 0);
+	for(let offset = 0; offset < levelWidth * 100; offset += gameBack.width) {
+		win.drawImage(gameBack, -levelScroll/2 + offset, 0);
+	}
 	loadLevel();
 	drawCharacter();
 	drawTiles();
@@ -203,6 +208,10 @@ function drawTiles(){
 }
 
 function drawCharacter(){
+	if(timonHidden) {
+		addText(260, canvas.height/2, "Вы спрятались", 70, "#000");
+		return;
+	}
 	let framesNumber = 4;
 	let offsetX = 3;
 	let offsetY = 510;
@@ -351,7 +360,7 @@ function tick(){
 	
 	tickTiles();
 
-	if(rightDown === true && testBox()["right"] === false){
+	if(rightDown === true && testBox()["right"] === false && !timonHidden){
 		timonDirection = "right";
 		if(levelScroll + timonSpeed + canvas.width <= levelWidth * 100) {
 			if (posX > canvas.width / 1.5) {
@@ -365,6 +374,8 @@ function tick(){
 			}else{
 				currentTick = 0;
 				started = false;
+				audio.pause();
+				audio.currentTime = 0.0;
 				postScore();
 				addText(canvas.width/4, canvas.height/4, "Победа!", 70, "#000");
 				getScore();
@@ -372,7 +383,7 @@ function tick(){
 		}
 	}
 
-	if(leftDown === true && testBox()["left"] === false){
+	if(leftDown === true && testBox()["left"] === false && !timonHidden){
 		timonDirection = "left";
 		if(levelScroll - timonSpeed >= 0) {
 		
@@ -389,7 +400,14 @@ function tick(){
 
 	if(upDown === true && testBox()["down"] === true){
 		upDown = false;
-		posY -= blockHeight*2;
+		if(timonHidden)
+			timonHidden = false;
+		else
+			posY -= blockHeight*2;
+	}
+
+	if(downDown === true){
+		timonHidden = true;
 	}
 }
 
@@ -441,8 +459,10 @@ $(document).on('keydown', function(event){
 			if(started){
 				addText(400, canvas.height/2, "ПАУЗА", 70, "#000");
 				started = false;
+				audio.pause();
 			}else if(currentTick !== 1){
 				started = true;
+				audio.play();
 			}
 			break;
 	}
@@ -473,7 +493,7 @@ function postScore(){
 	points = 1000 - time + score * 10;
 	let body = 'name=' + encodeURIComponent(name) + '&score=' + encodeURIComponent(points);
 
-	xhr.open("POST", '/api/savescore.php', true);
+	xhr.open("POST", 'api/savescore.php', true);
 	xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
 	xhr.send(body);
 }
@@ -485,7 +505,7 @@ function getScore(){
 			showBoard(xhr.responseText);
 		}
 	}
-	xhr.open("GET", "/api/getscore.php", true);
+	xhr.open("GET", "api/getscore.php", true);
 	xhr.send(null);
 }
 
@@ -512,6 +532,8 @@ function timer(){
 		if(hp <= 0){
 			currentTick = 0;
 			started = false;
+			audio.pause();
+			audio.currentTime = 0.0;
 			postScore();
 			addText(canvas.width/4, canvas.height/4, "Игра окончена!", 70, "#000");
 			getScore();
