@@ -40,7 +40,8 @@ let caterpillarRealWidth = 30;
 let caterpillarRealHeight = 30;
 let caterpillarHeight = 50;
 
-let levelWidth = 500;
+let levelWidth = 30;
+let structuresNumber = 2;
 let levelHeight = 7;
 let levelScroll = 0;
 
@@ -93,7 +94,7 @@ function generateLevel(){
 	}
 	
 	let step = 100;
-	for(let i = 1; i < 10; i++){
+	for(let i = 1; i < structuresNumber; i++){
 		let structure = structures[rand(0, structures.length - 1)];
 		for(let n = 0; n < structure.length; n++){
 			x = i*100 + step + structure[n][0]*100;
@@ -112,7 +113,6 @@ function generateLevel(){
 		}
 		step += structure[structure.length - 1][0]*100 + 200;
 	}
-	console.log(tiles);
 	return levelBlocks;
 }
 
@@ -353,10 +353,22 @@ function tick(){
 
 	if(rightDown === true && testBox()["right"] === false){
 		timonDirection = "right";
-		if(posX > canvas.width/1.5){
-			levelScroll += timonSpeed;
+		if(levelScroll + timonSpeed + canvas.width <= levelWidth * 100) {
+			if (posX > canvas.width / 1.5) {
+				levelScroll += timonSpeed;
+			} else {
+				posX += timonSpeed;
+			}
 		}else{
-			posX += timonSpeed;
+			if(posX + levelScroll + timonWidth*timonSizeMultiplier + timonSpeed < levelWidth * 100) {
+				posX += timonSpeed;
+			}else{
+				currentTick = 0;
+				started = false;
+				postScore();
+				addText(canvas.width/4, canvas.height/4, "Победа!", 70, "#000");
+				getScore();
+			}
 		}
 	}
 
@@ -389,8 +401,10 @@ function tickTiles(){
 		switch(type){
 			case 2:
 				if(x % 100 === 0 && y % 100 === 0){
-					if(level[getIndex(x, y)] === 1){
+					if(level[getIndex(x + blockWidth, y)] === 1){
 						tiles[i][3] = "left";
+					}else if(level[getIndex(x - blockWidth, y)] === 1){
+						tiles[i][3] = "right";
 					}
 				}
 				if(tiles[i][3] === "right"){
