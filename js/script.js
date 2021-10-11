@@ -26,8 +26,10 @@ let legsWidth = 35;
 let timonSizeMultiplier = 4;
 let timonFrame = 1;
 let timonDirection = "right";
-let timonSpeed = 5;
+let timonSpeed = 6;
 let timonHidden = false;
+let needHit = -1;
+let interactedWith = 0;
 
 let blockWidth = 100;
 let blockHeight = 100;
@@ -41,8 +43,9 @@ let caterpillarRealWidth = 30;
 let caterpillarRealHeight = 30;
 let caterpillarHeight = 50;
 
-let levelWidth = 30;
-let structuresNumber = 2;
+let levelWidth = 500;
+let finish = 0;
+let structuresNumber = 15;
 let levelHeight = 7;
 let levelScroll = 0;
 
@@ -78,22 +81,69 @@ function generateLevel(){
 			[3, 3, 1],
 			[6, 3, 1],
 			[7, 3, 1],
-			[7, 5, 3],
-			[8, 3, 1]
+			[8, 3, 1],
+			[8, 2, 3]
 		],
 		[
 			[0, 4, 1],
 			[1, 4, 1],
 			[3, 3, 1],
-			[4, 3, 1]
+			[4, 3, 1],
+			[4, 2, 3]
+		],
+		[
+			[0, 5, 1],
+			[2, 5, 2],
+			[2, 3, 3],
+			[2, 4, 1],
+			[4, 5, 1]
+		],
+		[
+			[2, 5, 1],
+			[3, 5, 1],
+			[3, 4, 3],
+			[0, 6, 4],
+			[1, 6, 4],
+			[2, 6, 4],
+			[3, 6, 4]
+		],
+		[
+			[0, 6, 4],
+			[1, 6, 4]
+		],
+		[
+			[0, 4, 1],
+			[1, 4, 1],
+			[2, 4, 1],
+			[1, 3, 3],
+			[1, 5, 2]
+		],
+		[
+			[0, 5, 1],
+			[1, 5, 1],
+			[0, 6, 4],
+			[1, 6, 4]
+		],
+		[
+			[0, 5, 1],
+			[2, 4, 1],
+			[3, 4, 1],
+			[4, 4, 1],
+			[4, 3, 3],
+			[3, 5, 2]
+		],
+		[
+			[0, 4, 1],
+			[0, 3, 3]
+		],
+		[
+			[0, 6, 4],
+			[1, 6, 4],
+			[2, 5, 3],
+			[3, 6, 4],
+			[4, 6, 4]
 		]
 	];
-
-	for(let i = 0; i < levelWidth * levelHeight; i++){
-		if(i >= levelWidth * (levelHeight - 1)){
-			levelBlocks[i] = 1;
-		}
-	}
 	
 	let step = 100;
 	for(let i = 1; i < structuresNumber; i++){
@@ -102,18 +152,28 @@ function generateLevel(){
 			x = i*100 + step + structure[n][0]*100;
 			y = structure[n][1]*100;
 			switch(structure[n][2]){
+				case 4:
 				case 1:
-					levelBlocks[getIndex(x, y)] = 1;
+					levelBlocks[getIndex(x, y)] = structure[n][2];
 					break;
 				case 2:
-					tiles.push([x, y, 2, "right"]);
+					//x, y, type, direction, blocksFromSpawnPoint
+					tiles.push([x, y, 2, "right", 0]);
 					break;
 				case 3:
-					tiles.push([x, y, 3, "right"]);
+					tiles.push([x, y, 3, "right", 0]);
 					break;
 			}
 		}
 		step += structure[structure.length - 1][0]*100 + 200;
+	}
+
+	finish = step + 2000;
+
+	for(let i = 0; i < levelWidth * levelHeight; i++){
+		if(i >= levelWidth * (levelHeight - 1) && levelBlocks[i] !== 4){
+			levelBlocks[i] = 1;
+		}
 	}
 	return levelBlocks;
 }
@@ -191,7 +251,7 @@ function drawTiles(){
 				let offsetX = 50;
 				let offsetY = 55;
 				if(debugMode === true){
-					addText(x - levelScroll, y - 50, x + ", " + y, 40, "blue");
+					addText(x - levelScroll, y - 50, i + ": "+ x + ", " + y, 40, "blue");
 				}
 				if(tile[3] === "left") {
 					//reverse
@@ -208,6 +268,10 @@ function drawTiles(){
 }
 
 function drawCharacter(){
+	if(debugMode){
+		addText(posX, posY - timonHeight - 10, (levelScroll + timonSpeed + canvas.width)/100, 40, "blue");
+	}
+
 	if(timonHidden) {
 		addText(260, canvas.height/2, "Вы спрятались", 70, "#000");
 		return;
@@ -273,7 +337,7 @@ function draw(){
 	start();
 	drawBar();
 	if(testBox()["down"] === false){
-		posY += 10;
+		posY += 5;
 	}
 }
 
@@ -360,16 +424,28 @@ function tick(){
 	
 	tickTiles();
 
+	if(posY > 700){
+		hp = 0;
+		draw();
+		currentTick = 0;
+		started = false;
+		audio.pause();
+		audio.currentTime = 0.0;
+		postScore();
+		addText(canvas.width/4, canvas.height/4, "Игра окончена!", 70, "#000");
+		getScore();
+	}
+
 	if(rightDown === true && testBox()["right"] === false && !timonHidden){
 		timonDirection = "right";
-		if(levelScroll + timonSpeed + canvas.width <= levelWidth * 100) {
+		if(levelScroll + timonSpeed + canvas.width <= finish) {
 			if (posX > canvas.width / 1.5) {
 				levelScroll += timonSpeed;
 			} else {
 				posX += timonSpeed;
 			}
 		}else{
-			if(posX + levelScroll + timonWidth*timonSizeMultiplier + timonSpeed < levelWidth * 100) {
+			if(posX + levelScroll + timonWidth*timonSizeMultiplier + timonSpeed < finish) {
 				posX += timonSpeed;
 			}else{
 				currentTick = 0;
@@ -408,6 +484,7 @@ function tick(){
 
 	if(downDown === true){
 		timonHidden = true;
+		needHit = -1;
 	}
 }
 
@@ -416,6 +493,33 @@ function tickTiles(){
 		x = tile[0];
 		y = tile[1];
 		type = tile[2];
+
+		if(type === 2 && !timonHidden) {
+			if (posX + levelScroll + timonWidth * timonSizeMultiplier >= x && posX + levelScroll <= x + hyenaWidth * hyenaSizeMultiplier && posY + 60 <= y && posY + 60 >= y - hyenaHeight * hyenaSizeMultiplier) {
+				if(needHit === -1){
+					hp -= 30;
+					if(hp < 0) {
+						hp = 0;
+					}
+					interactedWith = i;
+					needHit = 0;
+				}
+			} else {
+				if(interactedWith === i) {
+					needHit = -1;
+				}
+			}
+		}else if(type === 3 && !timonHidden){
+			if (posX + levelScroll + timonWidth * timonSizeMultiplier >= x && posX + levelScroll <= x + caterpillarWidth && posY + 60 <= y && posY + 60 >= y - caterpillarHeight) {
+				hp += 5;
+				if(hp > 100){
+					hp = 100;
+				}
+				score++;
+				delete tiles[i];
+			}
+		}
+
 		switch(type){
 			case 2:
 				if(x % 100 === 0 && y % 100 === 0){
@@ -425,9 +529,28 @@ function tickTiles(){
 						tiles[i][3] = "right";
 					}
 				}
+
+				if(Math.abs(tiles[i][4]) >= 500) {
+					if(tiles[i][3] === "left"){
+						tiles[i][3] = "right";
+					}else{
+						tiles[i][3] = "left";
+					}
+				}
+				
+				if(level[getIndex(x + x % 100, y + 100)] === 4){
+					if(tiles[i][3] === "left"){
+						tiles[i][3] = "right";
+					}else{
+						tiles[i][3] = "left";
+					}
+				}
+
 				if(tiles[i][3] === "right"){
+					tiles[i][4]++;
 					tiles[i][0]++;
 				}else{
+					tiles[i][4]--;
 					tiles[i][0]--;
 				}
 				break;
@@ -516,10 +639,15 @@ function showBoard(text){
 	win.strokeStyle = "black";
 	win.strokeRect(canvas.width/4, canvas.height/3, canvas.width/2, canvas.height/2);
 
+	let name = document.querySelector('input').value;
+	if(name === "") {
+		name = "Вы";
+	}
+
 	let array = jQuery.parseJSON(text);
 	for(let i = 0; i < array.length; i++){
 		if(i === 9 && points < array[i][2]){
-			addText(canvas.width / 4 + 15, canvas.height / 3 + 25 + i * 30, i + 1 + ". " + document.querySelector('input').value + " - " + points, 25, "#000");
+			addText(canvas.width / 4 + 15, canvas.height / 3 + 25 + i * 30, i + 1 + ". " + name + " - " + points, 25, "#000");
 		}else {
 			addText(canvas.width / 4 + 15, canvas.height / 3 + 25 + i * 30, i + 1 + ". " + array[i][1] + " - " + array[i][2], 25, "#000");
 		}
@@ -528,6 +656,16 @@ function showBoard(text){
 
 function timer(){
 	if(started){
+
+		if(needHit !== -1 && needHit++ > 0){
+			hp -= 30;
+		}
+
+		if(hp < 0){
+			hp = 0;
+			draw();
+		}
+
 		time++;
 		if(hp <= 0){
 			currentTick = 0;
