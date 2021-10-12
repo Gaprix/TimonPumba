@@ -31,6 +31,10 @@ let timonSpeed = 6;
 let timonHidden = false;
 let needHit = -1;
 let interactedWith = 0;
+let inJump = false;
+let jumpTime = 0;
+let jumpDuration = 50;
+let preJumpPosY = 0;
 
 let blockWidth = 100;
 let blockHeight = 100;
@@ -404,9 +408,10 @@ function testBox() {
                     win.fillRect(x2, y + blockHeight, blockWidth, 2);
                 }
 
-                if (y === posY + timonHeight * timonSizeMultiplier) {
-                    if ((x2 >= posX && Math.abs(x2 - posX) < blockWidth + legsWidth) || x2 <= posX && Math.abs(x2 - posX) < blockWidth)
+                if (Math.abs(y - (posY + timonHeight * timonSizeMultiplier)) < 5) {
+                    if ((x2 >= posX && Math.abs(x2 - posX) < blockWidth + legsWidth) || x2 <= posX && Math.abs(x2 - posX) < blockWidth) {
                         result["down"] = true;
+                    }
                 }
 
                 if (Math.abs(x2 - (posX + legsWidth * timonSizeMultiplier)) < timonSpeed + 1 && y < posY + timonHeight * timonSizeMultiplier && y > posY) {
@@ -492,11 +497,29 @@ function tick() {
     }
 
     if (upDown === true && testBox()["down"] === true) {
+        preJumpPosY = posY;
+        inJump = true;
         upDown = false;
         if (timonHidden) {
             timonHidden = false;
+        }
+    }
+
+    if (inJump === true) {
+        if (jumpTime > 0 && testBox()["down"] === true) {
+            inJump = false;
+            jumpTime = 0;
+            posY -= posY % 10;
         } else {
-            posY -= blockHeight * 2;
+            jumpTime++;
+            let jumpY = 4 * jumpDuration * Math.sin(Math.PI * jumpTime / jumpDuration);
+
+            if (jumpTime > jumpDuration) {
+                inJump = false;
+                jumpTime = 0;
+                jumpY = 0;
+            }
+            posY = preJumpPosY - jumpY;
         }
     }
 
