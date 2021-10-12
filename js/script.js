@@ -255,7 +255,7 @@ function drawTiles() {
         type = tile[2];
         switch (type) {
             case 2:
-                let offsetX = 107 - 72 + hyenaFrame * 72;
+                let offsetX = 107 - hyenaWidth + hyenaFrame * hyenaWidth;
                 let offsetY = 663;
                 if (debugMode === true) {
                     addText(x - levelScroll, y - 50, i + ": " + x + ", " + y, 40, "blue");
@@ -441,7 +441,7 @@ function tick() {
 
     tickTiles();
 
-    if (posY > 700) {
+    if (posY > canvas.height) {
         hp = 0;
         draw();
         currentTick = 0;
