@@ -20,6 +20,7 @@ let rightDown = false;
 let leftDown = false;
 let upDown = false;
 let downDown = false;
+let spaceDown = false;
 
 let timonWidth = 40;
 let timonHeight = 40;
@@ -212,6 +213,8 @@ function start() {
     if (!started) {
         time = 0;
         score = 0;
+		inJump = false;
+		needHit = -1;
         hp = 100;
         posX = 0;
         posY = 420;
@@ -277,6 +280,9 @@ function drawTiles() {
             case 3:
                 win.drawImage(caterpillar, x - levelScroll + 20, y + 60, caterpillarWidth, caterpillarHeight);
                 break;
+			case 5:
+				win.drawImage(caterpillar, x - levelScroll, y, caterpillarWidth, caterpillarHeight);
+				break;
         }
     });
 
@@ -443,7 +449,7 @@ function tick() {
     }
 
     currentTick++;
-
+	
     tickTiles();
 
     if (posY > canvas.height) {
@@ -527,6 +533,14 @@ function tick() {
         timonHidden = true;
         needHit = -1;
     }
+	
+	if(spaceDown === true) {
+		spaceDown = false;
+		if(score > 0) {
+			tiles.push([posX + levelScroll + (timonWidth*timonSizeMultiplier)/2, posY, 5, timonDirection, 0]);
+			score--;
+		}
+	}
 }
 
 function tickTiles() {
@@ -603,6 +617,26 @@ function tickTiles() {
             case 3:
                 //caterpillar
                 break;
+			case 5:
+				//caterpillar from timon
+				if(Math.abs(tiles[i][4]) >= 500) {
+					delete tiles[i];
+					break;
+				}
+				
+				if(level[getIndex(x - x % 100, y - y % 100)] === 1) {
+					delete tiles[i];
+					break;
+				}
+				
+				if(tiles[i][3] === "right") {
+				    tiles[i][4] += 10;
+                    tiles[i][0] += 10;
+                } else {
+                    tiles[i][4] -= 10;
+                    tiles[i][0] -= 10;
+                }
+				break;
         }
     });
 }
@@ -621,6 +655,9 @@ $(document).on('keydown', function (event) {
         case "ArrowDown":
             downDown = true;
             break;
+		case " ":
+			spaceDown = true;
+			break;
         case "Escape":
             if (currentTick === 0) {
                 break;
