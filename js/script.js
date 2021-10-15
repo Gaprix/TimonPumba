@@ -184,6 +184,9 @@ function generateLevel() {
             levelBlocks[i] = 1;
         }
     }
+	
+	tiles.push([posX, posY, 6, "right", 0]);
+	
     return levelBlocks;
 }
 
@@ -256,14 +259,16 @@ function drawTiles() {
     let x;
     let y;
     let type;
+	let offsetX;
+	let offsetY;
     tiles.forEach(function (tile, i) {
         x = tile[0];
         y = tile[1];
         type = tile[2];
         switch (type) {
             case 2:
-                let offsetX = 107 - hyenaWidth + hyenaFrame * hyenaWidth;
-                let offsetY = 663;
+                offsetX = 107 - hyenaWidth + hyenaFrame * hyenaWidth;
+                offsetY = 663;
                 if (debugMode === true) {
                     addText(x - levelScroll, y - 50, i + ": " + x + ", " + y, 40, "blue");
                 }
@@ -282,6 +287,9 @@ function drawTiles() {
                 break;
 			case 5:
 				win.drawImage(caterpillar, x - levelScroll, y, caterpillarWidth, caterpillarHeight);
+				break;
+			case 6:
+				drawCharacter(tile);
 				break;
         }
     });
