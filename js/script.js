@@ -13,8 +13,11 @@ let hp = 100;
 let points = 0;
 let guideFrame = 1;
 
-let posX = 0;
-let posY = 420;
+let timonPosX = 0;
+let timonPosY = 420;
+
+let pumbaPosX = 0;
+let pumbaPosY = 420;
 
 let rightDown = false;
 let leftDown = false;
@@ -35,7 +38,11 @@ let interactedWith = 0;
 let inJump = false;
 let jumpTime = 0;
 let jumpDuration = 50;
-let preJumpPosY = 0;
+let preJumptimonPosY = 0;
+
+let pumbaWidth = 40;
+let pumbaHeight = 40;
+let pumbaSizeMultiplier = 4;
 
 let blockWidth = 100;
 let blockHeight = 100;
@@ -59,6 +66,8 @@ let level = generateLevel();
 
 let timon = new Image();
 timon.src = "assets/timon.png";
+let pumba = new Image();
+pumba.src = "assets/pumba.png";
 let background = new Image();
 background.src = "assets/bg.png";
 let gameBack = new Image();
@@ -184,6 +193,10 @@ function generateLevel() {
             levelBlocks[i] = 1;
         }
     }
+	
+	tiles.push([timonPosX, timonPosY, 6, "right", 0]);
+	tiles.push([timonPosX, timonPosY, 7, "right", 0]);
+	
     return levelBlocks;
 }
 
@@ -216,8 +229,8 @@ function start() {
 		inJump = false;
 		needHit = -1;
         hp = 100;
-        posX = 0;
-        posY = 420;
+        timonPosX = 0;
+        timonPosY = 420;
         levelScroll = 0;
         tiles = [];
         level = generateLevel();
@@ -234,7 +247,6 @@ function start() {
         win.drawImage(gameBack, -levelScroll / 2 + offset, 0);
     }
     loadLevel();
-    drawCharacter();
     drawTiles();
 }
 
@@ -256,14 +268,16 @@ function drawTiles() {
     let x;
     let y;
     let type;
+	let offsetX;
+	let offsetY;
     tiles.forEach(function (tile, i) {
         x = tile[0];
         y = tile[1];
         type = tile[2];
         switch (type) {
             case 2:
-                let offsetX = 107 - hyenaWidth + hyenaFrame * hyenaWidth;
-                let offsetY = 663;
+                offsetX = 107 - hyenaWidth + hyenaFrame * hyenaWidth;
+                offsetY = 663;
                 if (debugMode === true) {
                     addText(x - levelScroll, y - 50, i + ": " + x + ", " + y, 40, "blue");
                 }
@@ -283,6 +297,10 @@ function drawTiles() {
 			case 5:
 				win.drawImage(caterpillar, x - levelScroll, y, caterpillarWidth, caterpillarHeight);
 				break;
+			case 6: //timon
+			case 7: //pumba
+				drawCharacter(tile);
+				break;
         }
     });
 
@@ -294,9 +312,28 @@ function drawTiles() {
     }
 }
 
-function drawCharacter() {
+function drawCharacter(tile){
+	switch(tile[2]){
+		case 6:
+			drawTimon();
+			break;
+		case 7:
+			//drawPumba();
+			break;
+	}
+}
+
+//TODO
+function drawPumba(){
+	let offsetX = 3;
+    let offsetY = 30;
+	let offsetTextureY = 0;
+	win.drawImage(pumba, offsetX, offsetY, pumbaWidth, pumbaHeight, pumbaPosX, pumbaPosY - offsetTextureY, pumbaWidth * pumbaSizeMultiplier, pumbaHeight * pumbaSizeMultiplier);
+}
+
+function drawTimon() {
     if (debugMode) {
-        addText(posX, posY - timonHeight, (levelScroll + timonSpeed + canvas.width) / 100, 40, "blue");
+        addText(timonPosX, timonPosY - timonHeight, (levelScroll + timonSpeed + canvas.width) / 100, 40, "blue");
     }
 
     if (timonHidden) {
@@ -344,12 +381,12 @@ function drawCharacter() {
     }
 
     if (timonDirection === "left") {
-        win.translate(posX + timonWidth * timonSizeMultiplier, posY + timonHeight2 * timonSizeMultiplier);
+        win.translate(timonPosX + timonWidth * timonSizeMultiplier, timonPosY + timonHeight2 * timonSizeMultiplier);
         win.scale(-1, 1);
         win.drawImage(timon, offsetX, offsetY, timonWidth, timonHeight2, 0, -timonHeight2 * timonSizeMultiplier - offsetTextureY, timonWidth * timonSizeMultiplier, timonHeight2 * timonSizeMultiplier);
         win.setTransform(1, 0, 0, 1, 0, 0);
     } else {
-        win.drawImage(timon, offsetX, offsetY, timonWidth, timonHeight2, posX, posY - offsetTextureY, timonWidth * timonSizeMultiplier, timonHeight2 * timonSizeMultiplier);
+        win.drawImage(timon, offsetX, offsetY, timonWidth, timonHeight2, timonPosX, timonPosY - offsetTextureY, timonWidth * timonSizeMultiplier, timonHeight2 * timonSizeMultiplier);
     }
     if (currentTick % 10 === 0) {
         timonFrame++;
@@ -364,7 +401,7 @@ function draw() {
     start();
     drawBar();
     if (testBox()["down"] === false) {
-        posY += 5;
+        timonPosY += 5;
     }
 }
 
@@ -397,7 +434,7 @@ function testBox() {
         for (let y = 0; y < canvas.height; y += blockHeight) {
             index = (y / blockHeight) * levelWidth + (x / blockWidth);
 
-            if (posX === 0) {
+            if (timonPosX === 0) {
                 result["left"] = true;
             }
 
@@ -414,17 +451,17 @@ function testBox() {
                     win.fillRect(x2, y + blockHeight, blockWidth, 2);
                 }
 
-                if (Math.abs(y - (posY + timonHeight * timonSizeMultiplier)) < 5) {
-                    if ((x2 >= posX && Math.abs(x2 - posX) < blockWidth + legsWidth) || x2 <= posX && Math.abs(x2 - posX) < blockWidth) {
+                if (Math.abs(y - (timonPosY + timonHeight * timonSizeMultiplier)) < 5) {
+                    if ((x2 >= timonPosX && Math.abs(x2 - timonPosX) < blockWidth + legsWidth) || x2 <= timonPosX && Math.abs(x2 - timonPosX) < blockWidth) {
                         result["down"] = true;
                     }
                 }
 
-                if (Math.abs(x2 - (posX + legsWidth * timonSizeMultiplier)) < timonSpeed + 1 && y < posY + timonHeight * timonSizeMultiplier && y > posY) {
+                if (Math.abs(x2 - (timonPosX + legsWidth * timonSizeMultiplier)) < timonSpeed + 1 && y < timonPosY + timonHeight * timonSizeMultiplier && y > timonPosY) {
                     result["right"] = true;
                 }
 
-                if (Math.abs((x2 + blockWidth) - posX) < timonSpeed + 1 && y < posY + timonHeight * timonSizeMultiplier && y > posY) {
+                if (Math.abs((x2 + blockWidth) - timonPosX) < timonSpeed + 1 && y < timonPosY + timonHeight * timonSizeMultiplier && y > timonPosY) {
                     result["left"] = true;
                 }
 
@@ -434,10 +471,10 @@ function testBox() {
 
     if (debugMode) {
         win.fillStyle = "red";
-        win.fillRect(posX, posY + timonHeight * timonSizeMultiplier, legsWidth * timonSizeMultiplier, 2);
-        win.fillRect(posX, posY + timonHeight * timonSizeMultiplier, 2, -timonHeight * timonSizeMultiplier);
-        win.fillRect(posX, posY, legsWidth * timonSizeMultiplier, 2);
-        win.fillRect(posX + legsWidth * timonSizeMultiplier, posY + timonHeight * timonSizeMultiplier, 2, -timonHeight * timonSizeMultiplier);
+        win.fillRect(timonPosX, timonPosY + timonHeight * timonSizeMultiplier, legsWidth * timonSizeMultiplier, 2);
+        win.fillRect(timonPosX, timonPosY + timonHeight * timonSizeMultiplier, 2, -timonHeight * timonSizeMultiplier);
+        win.fillRect(timonPosX, timonPosY, legsWidth * timonSizeMultiplier, 2);
+        win.fillRect(timonPosX + legsWidth * timonSizeMultiplier, timonPosY + timonHeight * timonSizeMultiplier, 2, -timonHeight * timonSizeMultiplier);
     }
 
     return result;
@@ -452,7 +489,7 @@ function tick() {
 	
     tickTiles();
 
-    if (posY > canvas.height) {
+    if (timonPosY > canvas.height) {
         hp = 0;
         draw();
         currentTick = 0;
@@ -467,14 +504,14 @@ function tick() {
     if (rightDown === true && testBox()["right"] === false && !timonHidden) {
         timonDirection = "right";
         if (levelScroll + timonSpeed + canvas.width <= finish) {
-            if (posX > canvas.width / 1.5) {
+            if (timonPosX > canvas.width / 1.5) {
                 levelScroll += timonSpeed;
             } else {
-                posX += timonSpeed;
+                timonPosX += timonSpeed;
             }
         } else {
-            if (posX + levelScroll + timonWidth * timonSizeMultiplier + timonSpeed < finish) {
-                posX += timonSpeed;
+            if (timonPosX + levelScroll + timonWidth * timonSizeMultiplier + timonSpeed < finish) {
+                timonPosX += timonSpeed;
             } else {
                 currentTick = 0;
                 started = false;
@@ -491,19 +528,19 @@ function tick() {
         timonDirection = "left";
         if (levelScroll - timonSpeed >= 0) {
 
-            if (posX < (canvas.width / 3) - timonWidth * timonSizeMultiplier) {
+            if (timonPosX < (canvas.width / 3) - timonWidth * timonSizeMultiplier) {
                 levelScroll -= timonSpeed;
             } else {
-                posX -= timonSpeed;
+                timonPosX -= timonSpeed;
             }
 
         } else {
-            posX -= timonSpeed;
+            timonPosX -= timonSpeed;
         }
     }
 
     if (upDown === true && testBox()["down"] === true) {
-        preJumpPosY = posY;
+        preJumptimonPosY = timonPosY;
         inJump = true;
         upDown = false;
         if (timonHidden) {
@@ -515,7 +552,7 @@ function tick() {
         if (jumpTime > 0 && testBox()["down"] === true) {
             inJump = false;
             jumpTime = 0;
-            posY -= posY % 10;
+            timonPosY -= timonPosY % 10;
         } else {
             jumpTime++;
             let jumpY = 4 * jumpDuration * Math.sin(Math.PI * jumpTime / jumpDuration);
@@ -525,7 +562,7 @@ function tick() {
                 jumpTime = 0;
                 jumpY = 0;
             }
-            posY = preJumpPosY - jumpY;
+            timonPosY = preJumptimonPosY - jumpY;
         }
     }
 
@@ -537,7 +574,7 @@ function tick() {
 	if(spaceDown === true) {
 		spaceDown = false;
 		if(score > 0) {
-			tiles.push([posX + levelScroll + (timonWidth*timonSizeMultiplier)/2, posY, 5, timonDirection, 0]);
+			tiles.push([timonPosX + levelScroll + (timonWidth*timonSizeMultiplier)/2, timonPosY, 5, timonDirection, 0]);
 			score--;
 		}
 	}
@@ -553,7 +590,7 @@ function tickTiles() {
         type = tile[2];
 
         if (type === 2 && !timonHidden) {
-            if (posX + levelScroll + timonWidth * timonSizeMultiplier >= x && posX + levelScroll <= x + hyenaWidth * hyenaSizeMultiplier && posY + 60 <= y && posY + 60 >= y - hyenaHeight * hyenaSizeMultiplier) {
+            if (timonPosX + levelScroll + timonWidth * timonSizeMultiplier >= x && timonPosX + levelScroll <= x + hyenaWidth * hyenaSizeMultiplier && timonPosY + 60 <= y && timonPosY + 60 >= y - hyenaHeight * hyenaSizeMultiplier) {
                 if (needHit === -1) {
                     hp -= 30;
                     if (hp < 0) {
@@ -568,7 +605,7 @@ function tickTiles() {
                 }
             }
         } else if (type === 3 && !timonHidden) {
-            if (posX + levelScroll + timonWidth * timonSizeMultiplier >= x && posX + levelScroll <= x + caterpillarWidth && posY + 60 <= y && posY + 60 >= y - caterpillarHeight) {
+            if (timonPosX + levelScroll + timonWidth * timonSizeMultiplier >= x && timonPosX + levelScroll <= x + caterpillarWidth && timonPosY + 60 <= y && timonPosY + 60 >= y - caterpillarHeight) {
                 hp += 5;
                 if (hp > 100) {
                     hp = 100;
@@ -636,6 +673,15 @@ function tickTiles() {
                     tiles[i][4] -= 10;
                     tiles[i][0] -= 10;
                 }
+				
+				tiles.forEach(function (t, id) {
+					if(id !== i && tiles[i]) {
+						if(t[0] - t[0] % 100 === x - x % 100 && t[1] - tiles[i][1] === 60) {
+							delete tiles[i];
+							delete tiles[id];
+						}
+					}
+				});
 				break;
         }
     });
