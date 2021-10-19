@@ -1,3 +1,18 @@
+<?php
+
+require_once("login/auth.php");
+
+use Auth;
+
+$auth = new Auth(true);
+
+if(!$auth->checkCookie()){
+	header('Location: login/');
+	exit;
+}
+
+?>
+
 <!DOCTYPE html>
 <html lang="ru">
 <head>
