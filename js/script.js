@@ -498,7 +498,6 @@ function tick() {
         audio.currentTime = 0.0;
         postScore();
         addText(canvas.width / 4, canvas.height / 4, "Игра окончена!", 70, "#000");
-        getScore();
     }
 
     if (rightDown === true && testBox()["right"] === false && !timonHidden) {
@@ -519,7 +518,6 @@ function tick() {
                 audio.currentTime = 0.0;
                 postScore();
                 addText(canvas.width / 4, canvas.height / 4, "Победа!", 70, "#000");
-                getScore();
             }
         }
     }
@@ -748,6 +746,12 @@ function postScore() {
     xhr.open("POST", 'api/savescore.php', true);
     xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
     xhr.send(body);
+
+    xhr.onreadystatechange = function () {
+        if (xhr.readyState === 4) {
+            getScore();
+        } 
+    }
 }
 
 function getScore() {
@@ -803,7 +807,6 @@ function timer() {
             audio.currentTime = 0.0;
             postScore();
             addText(canvas.width / 4, canvas.height / 4, "Игра окончена!", 70, "#000");
-            getScore();
         }
         hp--;
     } else {

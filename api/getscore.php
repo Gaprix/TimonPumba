@@ -1,6 +1,6 @@
 <?php
 
-$mysqli = new mysqli("127.0.0.1", "root", "9999", "timon");
+$mysqli = new mysqli("127.0.0.1", "remote", "9999", "timon");
 
 if($mysqli->errno){
 	exit;
