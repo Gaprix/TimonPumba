@@ -22,7 +22,7 @@ if(isset($_POST["name"]) && isset($_POST["score"])){
 	# Защита от SQL-инъекций
 	$name = $mysqli->real_escape_string($name);
 
-	$query = "INSERT INTO `users` (`name`, `score`) VALUES('$name', '$score')";
+	$query = "INSERT INTO `score` (`login`, `score`) VALUES('$name', '$score')";
 	$mysqli->query($query);
 }else{
 	exit("Invalid request");

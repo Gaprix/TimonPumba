@@ -9,7 +9,7 @@ class Auth{
             return;
         }
 
-        if($this->checkCookie()){
+        if($this->checkCookie() !== false){
             echo "Успешная авторизация!";
             echo '<a href="../"><h3>Играть<h/3></a>';
             exit;
@@ -110,7 +110,7 @@ class Auth{
         # Генерация криптографически безопасного токена
         $token = bin2hex(random_bytes(16));
         
-        $query = "INSERT INTO `tokens` (`login`, `token`) VALUES('$name', '$token')";
+        $query = "INSERT INTO `tokens` (`login`, `token`) VALUES('$name', '$token') ON DUPLICATE KEY UPDATE `token`='$token'";
         $this->mysqli->query($query);
 
         setcookie("token", $token, time() + 3600, "/");
@@ -122,14 +122,17 @@ class Auth{
         $result = $this->mysqli->query($query);
         $array = $result->fetch_all();
 
-        return isset($array[0], $array[0][0]) ?? $array[0][0];
+        if(isset($array[0], $array[0][0])){
+            return $array[0][0];
+        }else{
+            return null;
+        }
     }
 
-    public function checkCookie(): bool{
+    public function checkCookie(){
         if(isset($_COOKIE["token"])){
-            if($name = $this->getUserByToken($_COOKIE["token"]) !== null){
-                $this->setToken($name);
-                return true;
+            if(($name = $this->getUserByToken($_COOKIE["token"])) !== null){
+                return $name;
             }else{
                 return false;
             }

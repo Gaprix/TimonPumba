@@ -24,3 +24,7 @@ body {
 	border: 0;
 	background: transparent;
 }
+
+input {
+	display: none;
+}

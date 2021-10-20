@@ -782,7 +782,7 @@ function showBoard(text) {
         if (i === 9 && points < array[i][2]) {
             addText(canvas.width / 4 + 15, canvas.height / 3 + 25 + i * 30, i + 1 + ". " + name + " - " + points, 25, "#000");
         } else {
-            addText(canvas.width / 4 + 15, canvas.height / 3 + 25 + i * 30, i + 1 + ". " + array[i][1] + " - " + array[i][2], 25, "#000");
+            addText(canvas.width / 4 + 15, canvas.height / 3 + 25 + i * 30, i + 1 + ". " + array[i][0] + " - " + array[i][1], 25, "#000");
         }
     }
 }

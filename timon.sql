@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Хост: localhost:3306
--- Время создания: Окт 19 2021 г., 11:47
+-- Время создания: Окт 20 2021 г., 14:47
 -- Версия сервера: 8.0.26-0ubuntu0.20.04.3
 -- Версия PHP: 8.0.11
 
@@ -69,7 +69,7 @@ ALTER TABLE `score`
 -- Индексы таблицы `tokens`
 --
 ALTER TABLE `tokens`
-  ADD KEY `tokens_ibfk_1` (`login`);
+  ADD PRIMARY KEY (`login`);
 
 --
 -- Индексы таблицы `users`

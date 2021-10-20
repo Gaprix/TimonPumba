@@ -6,7 +6,7 @@ if($mysqli->errno){
 	exit;
 }
 
-$query = "SELECT * FROM `users` ORDER BY score DESC LIMIT 10";
+$query = "SELECT * FROM `score` ORDER BY score DESC LIMIT 10";
 
 $result = $mysqli->query($query);
 

@@ -6,7 +6,7 @@ use Auth;
 
 $auth = new Auth(true);
 
-if(!$auth->checkCookie()){
+if(($name = $auth->checkCookie()) === false){
 	header('Location: login/');
 	exit;
 }
@@ -25,7 +25,7 @@ if(!$auth->checkCookie()){
 	<div id="playGround">
 		<canvas id="game"></canvas>
 
-		<input type="text" id="playerName" placeholder="Ваше имя" maxlength="15">
+		<input type="text" id="playerName" placeholder="Ваше имя" maxlength="15" value="<?php echo $name; ?>">
 
 		<button id="startButton" onclick="start();">
 			<img src="assets/button.png"  alt="" />
