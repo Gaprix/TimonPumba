@@ -2,8 +2,6 @@
 
 require_once("login/auth.php");
 
-use Auth;
-
 $auth = new Auth(true);
 
 if(($name = $auth->checkCookie()) === false){

@@ -67,7 +67,7 @@ class Auth{
         }
     }
 
-    public function register(string $name, string $password, string $password2): bool{
+    public function register(string $name, string $password, string $password2): void{
         if(mb_strlen($name) > 15){
             exit("Слишком длинное имя!");
         }
