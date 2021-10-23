@@ -2,17 +2,22 @@
 <html>
     <head>
         <title>Регистрация</title>
+        <link href="css/style.css" rel="stylesheet">
     </head>
     <body>
-        <form action="index.php" method=POST>
-            <input name="login" type="text" placeholder="Логин">
-            <br>
-            <input name="password" type="password" placeholder="Пароль">
-            <br>
-            <input name="password2" type="password" placeholder="Повтор пароля">
-            <br>
-            <input value="Зарегистрироваться" type="submit">
-        </form>
-        <a href="?action=login"><h3>Есть аккаунт? Войти</h3></a>
+        <div class="block">
+            <div class="block-content">
+                <form action="index.php" method=POST>
+                    <input name="login" type="text" placeholder="Логин">
+                    <br>
+                    <input name="password" type="password" placeholder="Пароль">
+                    <br>
+                    <input name="password2" type="password" placeholder="Повтор пароля">
+                    <br>
+                    <input value="Зарегистрироваться" type="submit">
+                    <a href="?action=login"><h3>Есть аккаунт? Войти</h3></a>
+                </form>
+            </div>
+        </div>
     </body>
 </html>

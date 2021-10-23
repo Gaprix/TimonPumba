@@ -1,0 +1,24 @@
+body{
+    background-image: url("../../assets/bg2.png");
+    font-size: 12px;
+}
+
+.block{
+    background-color: white;
+    width: 500px;
+    height: 500px;
+    margin-left: 30%;
+    margin-top: 5%;
+    text-align: center;
+    padding: 10px;
+    border-radius: 15px;
+    box-shadow: 7px 7px 5px rgba(0,0,0,0.6);
+}
+
+.block-content{
+    display: inline-block;
+	width: 45%;
+	text-align: left;
+	margin: 0 auto 0 0;
+	padding: 50px;
+}
